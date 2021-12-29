@@ -1,4 +1,4 @@
 theme: "toha"
-baseURL: http://example.org/
+baseURL: https://eric-shaker.netlify.app/
 languageCode: en-us
 title: My New Hugo Site
