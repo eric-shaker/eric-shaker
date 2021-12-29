@@ -27,6 +27,10 @@ params:
   background: "images/104193 (1).jpg"
   # specify whether you want to write some blog posts or not
   enableBlogPost: true
+logo:
+  main: images/IMG_3344.jpg
+  inverted: images/inverted-logo.png
+  favicon: images/IMG_3344.jpg
 
   # specify whether you want to show Table of Contents in reading page
   enableTOC: true
