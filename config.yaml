@@ -1,7 +1,7 @@
 theme: "toha"
 baseURL: https://eric-shaker.netlify.app/
 languageCode: en-us
-title: "Eric's Site"
+title: "Eric R Shaker"
 
 # Manage languages
 # For any more details, you can check the official documentation: https://gohugo.io/content-management/multilingual/
@@ -24,7 +24,7 @@ enableEmoji: true
 params:
   # GitHub repo URL of your site
   gitRepo: https://github.com/hugo-toha/hugo-toha.github.io
-
+  background: "images/104193.jpg"
   # specify whether you want to write some blog posts or not
   enableBlogPost: true
 
