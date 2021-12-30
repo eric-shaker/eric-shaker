@@ -1,7 +1,7 @@
 theme: "toha"
 baseURL: https://eric-shaker.netlify.app/
 languageCode: en-us
-title: "Eric R Shaker"
+title: "Eric R Shaker v1.0.7"
 
 # Manage languages
 # For any more details, you can check the official documentation: https://gohugo.io/content-management/multilingual/

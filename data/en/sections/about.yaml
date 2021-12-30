@@ -14,7 +14,7 @@ company:
 url: "https://www.example.com"
 
 # your resume. this file path should be relative to you "static" directory
-resume: "ResearchResume.pdf"
+resume: "files/ResearchResume.pdf"
 
 # a summary about you
 summary: 'I am a passionate undergraduate bioengineering student who enjoys making patient centered differences with computational methods'
