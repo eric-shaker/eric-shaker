@@ -24,7 +24,8 @@ enableEmoji: true
 params:
   # GitHub repo URL of your site
   gitRepo: https://github.com/hugo-toha/hugo-toha.github.io
-  background: "images/104193 (1).jpg"
+  #background: "images/104193 (1).jpg"
+  background: "images/lab-panorama.jpg"
   # specify whether you want to write some blog posts or not
   enableBlogPost: true
 logo:
