@@ -1,0 +1,18 @@
+# some information about you
+name: "Eric Shaker"
+nickname: "Eric"
+# greeting message before your name. it will default to "Hi! I am" if not provided
+greeting: "Hi, I'm"
+image: "images/IMG_3344.jpg"
+# give your some contact information. they will be used in the footer
+contactInfo:
+  email: "ers183@pitt.edu"
+phone: "+1 848-213-5000"
+
+# some summary about what you do
+summary:
+  - I am a Student
+- I am a Researcher
+- I love working on biotech project
+- I work on clinical solutions
+- I love to work with new ideas
