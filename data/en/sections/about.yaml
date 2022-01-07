@@ -1,0 +1,55 @@
+section:
+  name: About
+  id: about
+  enable: true
+  weight: 1
+  showOnNavbar: true
+  template: sections/about.html
+
+# your designation
+designation: Student
+# your company information
+company:
+  name: University of Pittsburgh
+  url: "https://www.pitt.edu/"
+
+# your resume. this file path should be relative to you "static" directory
+resume: "files/ResearchResume.pdf"
+
+# a summary about you
+summary: 'I am a passionate undergraduate bioengineering student who enjoys making patient centered differences with computational methods'
+
+# your social links
+# give as many as you want. use font-awesome for the icons.
+socialLinks:
+- name: Email
+  icon: "fas fa-envelope"
+  url: "ers183@pitt.edu"
+- name: Github
+  icon: "fab fa-github"
+  url: "https://github.com/eric-shaker"
+- name: LinkedIn
+  icon: "fab fa-linkedin"
+  url: "www.linkedin.com/in/eric-shaker-aa31271a9"
+# your soft skills
+# give the percentage between 50 to 100 with 5 intervals.
+# currently supported colors: blue, yellow, pink, green, sky, orange
+softSkills:
+- name: Leadership
+  percentage: 85
+  color: blue
+- name: Team Work
+  percentage: 80
+  color: yellow
+- name: Work Ethic
+  percentage: 95
+  color: green
+- name: Communication
+  percentage: 85
+  color: sky
+- name: Adaptability
+  percentage: 95
+  color: orange
+- name: Initiative
+  percentage: 90
+  color: pink
