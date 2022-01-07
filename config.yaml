@@ -1,0 +1,44 @@
+theme: "toha"
+baseURL: https://eric-shaker.netlify.app/
+languageCode: en-us
+title: "Eric R Shaker"
+
+# Manage languages
+# For any more details, you can check the official documentation: https://gohugo.io/content-management/multilingual/
+languages:
+  en:
+    languageName: English
+    weight: 1
+
+# Control TOC depth
+markup:
+  tableOfContents:
+    startLevel: 2
+    endLevel: 6
+    ordered: false
+
+# Enable global emoji support
+enableEmoji: true
+
+# Site parameters
+params:
+  # GitHub repo URL of your site
+  gitRepo: https://github.com/eric-shaker/eric-shaker
+  #background: "images/104193 (1).jpg"
+  background: "images/custom5.jpg"
+
+  # specify whether you want to write some blog posts or not
+  enableBlogPost: true
+  enableTOC: true
+logo:
+    main: "images/main-logo.png"
+    inverted: "images/inverted-logo.png"
+    favicon: "images/favicon.png"
+
+  # specify whether you want to show Table of Contents in reading page
+  
+
+  # Provide newsletter configuration. This feature hasn't been implemented yet.
+  # Currently, you can just hide it from the footer.
+newsletter:
+   enable: true
