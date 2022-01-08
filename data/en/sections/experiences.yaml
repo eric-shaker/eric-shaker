@@ -1,0 +1,82 @@
+# section information
+section:
+  name: Experiences
+  id: experiences
+  enable: true
+  weight: 3
+  showOnNavbar: true
+# Can optionally hide the title in sections
+# hideTitle: true 
+
+# Your experiences
+experiences:
+- company:
+    name: Marlboro First Aid Squad
+    url: "https://marlborofirstaid.org/"
+    location: Marlboro, New Jersey
+# company overview
+    overview: MFAS responds to 911 calls to the surrounding communities and upholds a high level of care
+  positions:
+  - designation: Crew Chief
+    start: Nov 2017
+# don't provide end date if you are currently working there. It will be replaced by "Present"
+    end: July 2019
+# give some points about what was your responsibilities at the company.
+    responsibilities:
+    - Led cadet team on calls
+    - Managed cadets on shift
+    - Led drills and excercises to teach cadets
+  - designation: Sergeant
+    start: Feb 2018
+    end: July 2019
+    responsibilities:
+    - Implemented punishments and created accountability within entire cadet corps
+    - Managed over 70 cadets, including training, displining and maintaing a good standard of care
+    - Helped increase size of cadet corps by 300% with others on executive board
+- company:
+    name: Dr. Rui Liang Lab
+    url: "https://eric-shaker.netlify.app/posts/academic-projects/rui/initialwork/"
+    location: Pittsburgh, PA
+    overview: Helped conduct/analyze assays for analysis of diabetic macrophages and present/publish materials
+  positions:
+  - designation: Student Researcher
+    start: Nov 2019
+    end: July 2021
+    responsibilities:
+    - Perform in vitro cell work
+    - Analyze assays
+    - Produce figures/writings to be presented
+  - designation: Lead Inventor for the BioBulwark
+    start: Nov 2020
+    # end 2021
+    responsibilities:
+    - Pitch to investors
+    - Develop / manufacture product
+    - Perform testing on product + analysis
+- company:
+    name: Medical Device Manufacturing Labratory
+    url: "https://sites.google.com/view/chun-lab/home"
+    location: Pittsburgh, PA
+    overview: Responsible for the development/analysis of medical devices including heart valves and neurovascular aneurym coils
+  positions:
+  - designation: Student Researcher
+    start: Feb 2021
+    end: Oct 2021
+    responsibilities:
+    - Perform mechanical testing + develop models 
+    - Perform chemical testing/developing chemical environments to mimic blood and CSF fluids
+    - Performed statistical analysis for hemodynamic tests
+- company:
+    name: Benam Lab
+    url: "https://www.benamlab.net/team"
+    location: Pittsburgh, PA
+    overview: Develop microphysiological models for oxygen exchange
+  positions:
+  - designation: Student Researcher
+    start: Feb 2021
+    end: Aug 2021
+    responsibilities:
+    - Wrote code for 3D printer to extrude vasculature cells
+    - Cultured cells to be extruded into cell scaffold
+    - Developed code for actuator to focus camera on migrating immune cells coming from bone marrow
+      

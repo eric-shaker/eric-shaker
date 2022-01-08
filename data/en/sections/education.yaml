@@ -1,0 +1,88 @@
+section:
+  name: Education
+  id: education
+  template: sections/education.html # Use "sections/education-alt.html for alternate template.
+  enable: true
+  weight: 4
+  showOnNavbar: true
+# Can optionally hide the title in sections
+# hideTitle: true
+
+degrees:
+# - name: PhD in Quantum Cryptography
+#   icon: fa-microscope
+#   timeframe: 2016-2020
+#   institution:
+#     name: ABC University of Technology
+#     url: "#"
+#   grade: #(optional)
+#     scale: CGPA
+#     achieved: 3.6
+#     outOf: 4
+#   publications: #(optional)
+#   - title: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+#     url: "#"
+#   - title: Fusce eu augue ut odio porttitor pulvinar.
+#     url: "#"
+#   - title: Nullam vitae orci tincidunt purus viverra pulvinar.
+#     url: "#"
+- name: B.S. in Bioengineering
+  icon: fa-microscope
+  timeframe: 2019-2023
+  institution:
+    name: University of Pittsburgh
+    url: "https://www.pitt.edu/"
+  grade: #(optional)
+    scale: GPA
+    achieved: 3.8
+    outOf: 4
+  takenCourses: #(optional)
+  # if true, the courses will be rendered as a table otherwise it will render as a list and the grades will be hidden.
+  showGrades: true
+  collapseAfter: 3
+  courses:
+  - name: Biotransport Phenomena
+    achieved: 4
+    outOf: 4
+  - name: Organic Chemistry
+    achieved: 4
+    outOf: 4
+  - name: Biosignals and Systems
+    achieved: 3.75
+    outOf: 4
+  - name: Organic Chemistry Labratory
+    achieved: 4
+    outOf: 4
+  - name: Biothermodynamics
+    achieved: 4
+    outOf: 4
+  - name: Bioinstrumentation- Linear Systems and Signals
+    achieved: 4
+    outOf: 4
+  # publications: #(optional)
+  # - title: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  #   url: "#"
+  # - title: Fusce eu augue ut odio porttitor pulvinar.
+  #   url: "#"
+  extracurricularActivities: #(optional)
+  - Risk Manager of Delta Chi Fraternity
+  - BMES - Biomedical Engineering Society
+  - MENASA - Middle Eastern and North African Student Association
+  - COYA - Coptic Orthodox Youth Association
+- name:  High School Diploma
+  icon: fa-graduation-cap
+  timeframe: 2015-2019
+  institution:
+    name: Marlboro High School
+    url: "https://www.frhsd.com/MARLBORO"
+  grade: #(optional)
+    scale: GPA
+    achieved: 4.91
+    outOf: 5.6
+  extracurricularActivities: #(optional)
+  - Captain of Track Team
+  - Science club
+  - Math club
+  - National Honor Society
+  - President of French National Honor Society
+  - First aid

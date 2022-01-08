@@ -1,0 +1,23 @@
+section:
+  name: Achievements
+  id: achievements
+  enable: true
+  weight: 8
+  showOnNavbar: true
+# Can optionally hide the title in sections
+# hideTitle: true
+
+# Your achievements achievements
+achievements:
+- title: Award Winner 
+  image: /images/wells.jpg
+  summary: Best innovation in Healthcare awarded 10,000 dollars
+- title: Champion
+  image: /images/track.jpg
+  summary: Four school records and highest GPA two-sport athlete
+- title: Can steer a boat
+  image: /images/boat.jpg
+  summary: Nothing special but I got bored
+- title: Sergeant 
+  image: /images/file.jpeg
+  summary: Sergeant of the Cadet Corps and EMT who tripled the size of the cadet corps
