@@ -8,7 +8,7 @@ menu:
     identifier: signals
     parent: academic-projects
     weight: 6
-hero: bkg.jpg
+hero: bkg.gif
 tags: ["Markdown","Content Organization","Multi-lingual"]
 categories: ["Basic"]
 ---

@@ -1,8 +1,8 @@
 ---
-title: Writings
+title: Writing
 menu:
   sidebar:
-    name: Writings
+    name: Writing
     identifier: writings
     weight: 5
 ---
