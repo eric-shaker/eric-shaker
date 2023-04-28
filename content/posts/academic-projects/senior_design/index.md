@@ -1,6 +1,6 @@
 ---
 title: "Bioengineering Senior Design: Developing A Feedback-Oriented Trainer for Reducing Shoulder Subluxations "
-date: 2022-12-01T08:06:25+06:00
+date: 2022--4-28T08:06:25+06:00
 description: A culminatory bioengineering senior design project. 
 menu:
   sidebar:
@@ -69,7 +69,7 @@ Afterwards, a 3D printed humerus was attached with pliable fishing line to mimic
 
 {{< vs >}}
 
-#### Final Iteration 
+#### Third Iteration 
 The feature set for iteration 3 was greatly expanded. It can be broken down into a subset of component:
 
 * Component that can sense whether the center of the humerus is touching the labrum. If so, an LED and an auditory signal will be produced
@@ -228,6 +228,736 @@ Furthermore, in the early months of the projects I made the decision to order cl
 
 {{< img src="/posts/academic-projects/senior_design/final_assembly_collage.png" align="center" title="Final Assembly">}}
 
+## Fourth and Final Iteration 
+The fourth iteration was the final one that would be made in the scope of the class. Although functional, iteration 3 failed in some capacities - including visually, functionally (regarding the consistency of the electrical conductance system) and interactively as it needed to be set up with a laptop that would be running the Arduino program in which commands would be directly inputted into. This obivously poses a huge problem. 
+
+These were the principal areas in which the device was improved in the final iteration: 
+
+#### Additional stepper motors 
+After discussion with my design team about the current functionality of the motors, we decided to add two more stepper motors, allowing for independent internal and external rotation. Iteration 4 had issues with excessive internal rotation occurring with the tightening of the subscapularis analogue (the front-facing fiber), an independent external rotator was added to the model to ensure that the humerus can be displaced translationally without excessive rotation. This will allow the model to be a better mimic of the physiological issue. I rewired all the stepper motors and reprogrammed the arduino to take into account these additional forces myself. Furthermore, myself and Jeremy installed these in our new 3D printed housing in orientations that wouldn't impede the line of pull of the stepper motors.
+{{< img src="/posts/academic-projects/senior_design/gluing_motors.JPEG" align="center" title="Motor Integration">}}
+
+#### Interactive touchscreen
+
+The primary addition for this iteration was the successful development of an interactive touchscreen that allows the user to specify which condition (hypermobile EDS or non-hEDS) they would like to perform treatment on. Furthermore, the interactive screen contains buttons that allow the user to select whether they would like the trainer to produce a subluxed state, or reduce a previously subluxed state on its own. Lastly, a certified trainer can access the “Manual” mode which allows for the precise specifications of the fibers in each individual stepper motor - allowing for high fidelity in mimicking a shoulder joint. Another external screen controlled by a Raspberry Pi microcontroller has been implemented to allow the continuous display of the gyroscopic simulation to the user. An external housing that contains all the electrical and visual components has been developed and implemented to this end.
+
+I came up with the idea for the integration of both screens and an external housing unit that a team-mate made. It took alot of effort, but without it our use case did not make any sense. A practicing PT or phyiscal therapist student would have to have knowledge of Arduino, have the Arduino program loaded onto their laptop and inputs commmands directly into the command line if they wanted to use the device previously. This was incongruent with the use case and needed to be remediated. I had to restructure the Arduino pins, install, and code for the screen myself. 
+
+{{< img src="/posts/academic-projects/senior_design/screen_wiring.JPEG" align="center" title="Screen Wiring">}}
+
+The interface was tweaked several times to be easy enough to read but robust enough to use. The "Manual" mode allowed a technician or experienced user to alter the degree of tension or looseness in any one of the 6 different stepper motors. 
+
+{{< img src="/posts/academic-projects/senior_design/screen.JPEG" align="center" title="Screen Display">}}
+
+
+#### Power Supply
+
+Lastly, the final alteration was changing the device power supply. Iteration 4 derived motor power from a wall outlet, and logical power (for the arduino and stepper drivers) from a USB cable connected to a laptop. The previous iteration was thereby limited in who could use the device, and where. A user would have to input commands by altering the command line of the Arduino software, and be continually within close range of an outlet. This did not satisfy the design inputs, and limited the educational applicability of the devie. By making every system powered by portable batteries encased in an external electrical housing, the device is now enabled to be used anywhere for extended periods of time, and by someone with no software background.I rewired everything to be powered by battery packs on my own. This includes the stepper battery, the batteries to compute logical commands, and the wall outlet neccessary to power the screen. 
+
+{{< img src="/posts/academic-projects/senior_design/rewiring_battery.JPEG" align="center" title="Rewiring Battery">}}
+
+#### Electrical Conductance System
+The previous electrical conductancec system was inconsistent and was based on a principal that was bound to fail. Essentially if the circuit was completed (via interaction between the humeral head and the labral peak), current would run through the speaker. This has implicit disadvantages, includy janky connections, high resistivity leading to low current flow and subsequently low volume, and inherent safety risks. I remade the electrical conductance system on Arduino myself and integrated it with the existing code. This way, we could also record mistakes and excessive labral contact that could be used to tell the user how to improve in the future. The code block containing the screen, stepper control, and feedback system has been displayed below: 
+
+```
+
+
+#include <Elegoo_GFX.h>     // Core graphics library
+#include <Elegoo_TFTLCD.h>  // Hardware-specific library
+#include <TouchScreen.h>
+
+// The control pins for the LCD can be assigned to any digital or
+// analog pins...but we'll use the analog pins as this allows us to
+// double up the pins with the touch screen (see the TFT paint example).
+#define LCD_CS A3  // Chip Select goes to Analog 3
+#define LCD_CD A2  // Command/Data goes to Analog 2
+#define LCD_WR A1  // LCD Write goes to Analog 1
+#define LCD_RD A0  // LCD Read goes to Analog 0
+
+#define LCD_RESET A4  // Can alternately just connect to Arduino's reset pin
+
+#define BLACK 0x0000
+#define BLUE 0x001F
+#define RED 0xF800
+#define GREEN 0x07E0
+#define CYAN 0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW 0xFFE0
+#define WHITE 0xFFFF
+
+// Color definitions
+#define ILI9341_BLACK 0x0000       /*   0,   0,   0 */
+#define ILI9341_NAVY 0x000F        /*   0,   0, 128 */
+#define ILI9341_DARKGREEN 0x03E0   /*   0, 128,   0 */
+#define ILI9341_DARKCYAN 0x03EF    /*   0, 128, 128 */
+#define ILI9341_MAROON 0x7800      /* 128,   0,   0 */
+#define ILI9341_PURPLE 0x780F      /* 128,   0, 128 */
+#define ILI9341_OLIVE 0x7BE0       /* 128, 128,   0 */
+#define ILI9341_LIGHTGREY 0xC618   /* 192, 192, 192 */
+#define ILI9341_DARKGREY 0x7BEF    /* 128, 128, 128 */
+#define ILI9341_BLUE 0x001F        /*   0,   0, 255 */
+#define ILI9341_GREEN 0x07E0       /*   0, 255,   0 */
+#define ILI9341_CYAN 0x07FF        /*   0, 255, 255 */
+#define ILI9341_RED 0xF800         /* 255,   0,   0 */
+#define ILI9341_MAGENTA 0xF81F     /* 255,   0, 255 */
+#define ILI9341_YELLOW 0xFFE0      /* 255, 255,   0 */
+#define ILI9341_WHITE 0xFFFF       /* 255, 255, 255 */
+#define ILI9341_ORANGE 0xFD20      /* 255, 165,   0 */
+#define ILI9341_GREENYELLOW 0xAFE5 /* 173, 255,  47 */
+#define ILI9341_PINK 0xF81F
+
+#define TEXT_X 5
+#define TEXT_Y 40
+#define TEXT_W 230
+#define TEXT_H 40
+#define TEXT_TSIZE 2
+#define TEXT_TCOLOR ILI9341_BLACK
+char textfield[26] = "                          ";
+int manualState = 0;
+int lastManualState = 1;
+int EDS = 2;
+int subluxed = 0; 
+
+char buttonlabels1[14][26] = { "Trainer", "Manual", "ER Tighten", "ER Loosen", "IR Tighten", "IR Loosen", "SSp Tighten", "SSp Loosen", "IS Tighten", "IS Loosen", "SSc Tighten", "SSc Loosen", "TM Tighten", "TM Loosen" };
+char buttonlabels0[14][26] = { "Trainer", "Manual", "EDS", "Non-EDS", "Sublux", "Reduce", "Supraspinatus Tighten", "Infraspinatus Tighten", "Supraspinatus Loosen", "Infraspinatus Loosen", "Subscapularis Tighten", "Teres Minor Tighten", "Subscapularis Loosen", "Teres Minor Loosen" };
+int BUTTON_X1 = 58; int BUTTON_Y1 = 60; int BUTTON_W1 =  116; int BUTTON_H1 = 35; int BUTTON_SPACING_X1 = 8; int BUTTON_SPACING_Y1 = 4; int BUTTON_TEXTSIZE1 =1; 
+int BUTTON_X0 = 58; int BUTTON_Y0 = 60; int BUTTON_W0 =  116; int BUTTON_H0 = 70; int BUTTON_SPACING_X0 = 8; int BUTTON_SPACING_Y0 = 4; int BUTTON_TEXTSIZE0 =1; 
+
+#define YP A3  // must be an analog pin, use "An" notation!
+#define XM A2  // must be an analog pin, use "An" notation!
+#define YM 9   // can be a digital pin
+#define XP 8   // can be a digital pin
+#define TS_MINX 120
+#define TS_MAXX 900
+#define TS_MINY 70
+#define TS_MAXY 920
+
+
+
+
+Elegoo_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+
+
+Elegoo_GFX_Button buttons[14];
+/* create 15 buttons, in classic candybar phone style */
+uint16_t buttoncolors[14] = { ILI9341_BLACK, ILI9341_DARKGREEN, ILI9341_BLUE,
+                              ILI9341_RED, ILI9341_BLUE, ILI9341_RED,
+                              ILI9341_BLUE, ILI9341_RED, ILI9341_BLUE,
+                              ILI9341_RED, ILI9341_BLUE, ILI9341_RED,
+                              ILI9341_BLUE, ILI9341_RED};
+
+
+// 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+// NOW INITIALIZE ALL THE STEPPER CONTROLLER VARIABLES - THESE ARE WHAT I NEED TO CHANGE FOR NOW
+#define DIR_PIN_1 22  //direction
+#define STEP_PIN_1 24
+
+#define DIR_PIN_2 26  //direction
+#define STEP_PIN_2 28
+
+#define DIR_PIN_3 30  //direction
+#define STEP_PIN_3 32
+
+#define DIR_PIN_4 34  //direction
+#define STEP_PIN_4 36
+
+#define DIR_PIN_5 38  //direction
+#define STEP_PIN_5 40
+
+#define DIR_PIN_6 42  //direction
+#define STEP_PIN_6 44
+
+#define MS2_PIN 23
+#define MS2_PIN_1 25
+
+#define MS1_PIN 27
+#define MS1_PIN_1 29
+
+#define EN_PIN 31    //enable (CFG6)
+#define EN_PIN_1 33  //enable (CFG6)
+
+// 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+// START OF THE INSTANTIATION OF THE LABRUM AND BUZZER CONNECTION 
+
+#define GH_CONNECTION A8 
+#define LABRUM_CONNECTION A9
+#define BUZZER A10 
+#define LED_GREEN A11
+#define LED_RED A12
+
+
+// 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+// START OF THE SETUP  + THE CODE FOR THE SCREEN 
+
+
+
+void setup(void) {
+  Serial.begin(9600);
+  Serial.println(F("TFT LCD test"));
+
+#ifdef USE_Elegoo_SHIELD_PINOUT
+  Serial.println(F("Using Elegoo 2.8\" TFT Arduino Shield Pinout"));
+#else
+  Serial.println(F("Using Elegoo 2.8\" TFT Breakout Board Pinout"));
+#endif
+
+  Serial.print("TFT size is "); Serial.print(tft.width()); Serial.print("x"); Serial.println(tft.height());
+
+  tft.reset();
+
+  uint16_t identifier = tft.readID();
+  if (identifier == 0x9325) {
+    Serial.println(F("Found ILI9325 LCD driver"));
+  } else if (identifier == 0x9328) {
+    Serial.println(F("Found ILI9328 LCD driver"));
+  } else if (identifier == 0x4535) {
+    Serial.println(F("Found LGDP4535 LCD driver"));
+  } else if (identifier == 0x7575) {
+    Serial.println(F("Found HX8347G LCD driver"));
+  } else if (identifier == 0x9341) {
+    Serial.println(F("Found ILI9341 LCD driver"));
+  } else if (identifier == 0x8357) {
+    Serial.println(F("Found HX8357D LCD driver"));
+  } else if (identifier == 0x0101) {
+    identifier = 0x9341;
+    Serial.println(F("Found 0x9341 LCD driver"));
+  } else {
+    Serial.print(F("Unknown LCD driver chip: "));
+    Serial.println(identifier, HEX);
+    Serial.println(F("If using the Elegoo 2.8\" TFT Arduino shield, the line:"));
+    Serial.println(F("  #define USE_Elegoo_SHIELD_PINOUT"));
+    Serial.println(F("should appear in the library header (Elegoo_TFT.h)."));
+    Serial.println(F("If using the breakout board, it should NOT be #defined!"));
+    Serial.println(F("Also if using the breakout, double-check that all wiring"));
+    Serial.println(F("matches the tutorial."));
+    identifier = 0x9341;
+  }
+
+  tft.begin(identifier);
+  tft.setRotation(2);
+  tft.fillScreen(ILI9341_DARKGREY);
+  
+
+  buttons[0].initButton(&tft, 58,
+                        20,  // x, y, w, h, outline, fill, text
+                        BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[0], ILI9341_WHITE,
+                        buttonlabels0[0], BUTTON_TEXTSIZE1);
+  buttons[0].drawButton();
+
+  buttons[1].initButton(&tft, 182,
+                        20,  // x, y, w, h, outline, fill, text
+                        BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[1], ILI9341_WHITE,
+                        buttonlabels0[1], BUTTON_TEXTSIZE1);
+  buttons[1].drawButton();
+
+
+buttoncolors[2] = ILI9341_NAVY; buttoncolors[4] = ILI9341_NAVY;
+buttoncolors[3] = ILI9341_MAROON; buttoncolors[5] = ILI9341_MAROON;
+ 
+  for (uint8_t row = 1; row < 3; row++) {
+                for (uint8_t col = 0; col < 2; col++) {
+                  buttons[col + row * 2].initButton(&tft, BUTTON_X0 + col * (BUTTON_W0 + BUTTON_SPACING_X0),
+                                                    BUTTON_Y0 + row * (BUTTON_H0 + BUTTON_SPACING_Y0),  // x, y, w, h, outline, fill, text
+                                                    BUTTON_W0, BUTTON_H0, ILI9341_WHITE, buttoncolors[col + row * 2], ILI9341_WHITE,
+                                                    buttonlabels0[col + row * 2], BUTTON_TEXTSIZE0);
+                  buttons[col + row * 2].drawButton();
+                }
+          }
+
+  // create 'text field'
+  tft.drawRect(TEXT_X, TEXT_Y, TEXT_W, TEXT_H, ILI9341_DARKGREY);
+
+
+// 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+// START CODE FOR THE CONTROL OF THE STEPPER MOTORS
+
+  pinMode(EN_PIN, OUTPUT);
+  pinMode(EN_PIN_1, OUTPUT);
+
+  digitalWrite(EN_PIN, HIGH);  //deactivate driver (LOW active)
+  digitalWrite(EN_PIN_1, HIGH);
+
+
+  pinMode(DIR_PIN_1, OUTPUT);  //   pinMode(DIR_PIN_2, OUTPUT);  pinMode(DIR_PIN_3, OUTPUT);  pinMode(DIR_PIN_4, OUTPUT);
+  pinMode(DIR_PIN_2, OUTPUT);  //   pinMode(DIR_PIN_2, OUTPUT);  pinMode(DIR_PIN_3, OUTPUT);  pinMode(DIR_PIN_4, OUTPUT);
+  pinMode(DIR_PIN_3, OUTPUT);  //   pinMode(DIR_PIN_2, OUTPUT);  pinMode(DIR_PIN_3, OUTPUT);  pinMode(DIR_PIN_4, OUTPUT);
+  pinMode(DIR_PIN_4, OUTPUT);  //   pinMode(DIR_PIN_2, OUTPUT);  pinMode(DIR_PIN_3, OUTPUT);  pinMode(DIR_PIN_4, OUTPUT);
+  pinMode(DIR_PIN_5, OUTPUT);  //   pinMode(DIR_PIN_2, OUTPUT);  pinMode(DIR_PIN_3, OUTPUT);  pinMode(DIR_PIN_4, OUTPUT);
+  pinMode(DIR_PIN_6, OUTPUT);  //   pinMode(DIR_PIN_2, OUTPUT);  pinMode(DIR_PIN_3, OUTPUT);  pinMode(DIR_PIN_4, OUTPUT);
+
+  //digitalWrite(DIR_PIN_1, LOW); //LOW to CCW
+  digitalWrite(DIR_PIN_1, HIGH);  // digitalWrite(DIR_PIN_2, HIGH); digitalWrite(DIR_PIN_4, HIGH); digitalWrite(DIR_PIN_4, HIGH);
+  digitalWrite(DIR_PIN_2, HIGH);  // digitalWrite(DIR_PIN_2, HIGH); digitalWrite(DIR_PIN_4, HIGH); digitalWrite(DIR_PIN_4, HIGH);
+  digitalWrite(DIR_PIN_3, HIGH);  // digitalWrite(DIR_PIN_2, HIGH); digitalWrite(DIR_PIN_4, HIGH); digitalWrite(DIR_PIN_4, HIGH);
+  digitalWrite(DIR_PIN_4, HIGH);  // digitalWrite(DIR_PIN_2, HIGH); digitalWrite(DIR_PIN_4, HIGH); digitalWrite(DIR_PIN_4, HIGH);
+  digitalWrite(DIR_PIN_5, HIGH);  // digitalWrite(DIR_PIN_2, HIGH); digitalWrite(DIR_PIN_4, HIGH); digitalWrite(DIR_PIN_4, HIGH);
+  digitalWrite(DIR_PIN_6, HIGH);  // digitalWrite(DIR_PIN_2, HIGH); digitalWrite(DIR_PIN_4, HIGH); digitalWrite(DIR_PIN_4, HIGH);
+  //HIGH to CW
+
+  pinMode(STEP_PIN_1, OUTPUT);  // pinMode(STEP_PIN_2, OUTPUT);  pinMode(STEP_PIN_3, OUTPUT);  pinMode(STEP_PIN_4, OUTPUT);
+  pinMode(STEP_PIN_2, OUTPUT);  // pinMode(STEP_PIN_2, OUTPUT);  pinMode(STEP_PIN_3, OUTPUT);  pinMode(STEP_PIN_4, OUTPUT);
+  pinMode(STEP_PIN_3, OUTPUT);  // pinMode(STEP_PIN_2, OUTPUT);  pinMode(STEP_PIN_3, OUTPUT);  pinMode(STEP_PIN_4, OUTPUT);
+  pinMode(STEP_PIN_4, OUTPUT);  // pinMode(STEP_PIN_2, OUTPUT);  pinMode(STEP_PIN_3, OUTPUT);  pinMode(STEP_PIN_4, OUTPUT);
+  pinMode(STEP_PIN_5, OUTPUT);  // pinMode(STEP_PIN_2, OUTPUT);  pinMode(STEP_PIN_3, OUTPUT);  pinMode(STEP_PIN_4, OUTPUT);
+  pinMode(STEP_PIN_6, OUTPUT);  // pinMode(STEP_PIN_2, OUTPUT);  pinMode(STEP_PIN_3, OUTPUT);  pinMode(STEP_PIN_4, OUTPUT);
+
+  digitalWrite(STEP_PIN_1, LOW);  //  digitalWrite(STEP_PIN_2, LOW);  digitalWrite(STEP_PIN_3, LOW);  digitalWrite(STEP_PIN_4, LOW);
+  digitalWrite(STEP_PIN_2, LOW);  //  digitalWrite(STEP_PIN_2, LOW);  digitalWrite(STEP_PIN_3, LOW);  digitalWrite(STEP_PIN_4, LOW);
+  digitalWrite(STEP_PIN_3, LOW);  //  digitalWrite(STEP_PIN_2, LOW);  digitalWrite(STEP_PIN_3, LOW);  digitalWrite(STEP_PIN_4, LOW);
+  digitalWrite(STEP_PIN_4, LOW);  //  digitalWrite(STEP_PIN_2, LOW);  digitalWrite(STEP_PIN_3, LOW);  digitalWrite(STEP_PIN_4, LOW);
+  digitalWrite(STEP_PIN_5, LOW);  //  digitalWrite(STEP_PIN_2, LOW);  digitalWrite(STEP_PIN_3, LOW);  digitalWrite(STEP_PIN_4, LOW);
+  digitalWrite(STEP_PIN_6, LOW);  //  digitalWrite(STEP_PIN_2, LOW);  digitalWrite(STEP_PIN_3, LOW);  digitalWrite(STEP_PIN_4, LOW);
+
+
+  pinMode(MS1_PIN, OUTPUT);
+  pinMode(MS1_PIN_1, OUTPUT);
+  pinMode(MS2_PIN, OUTPUT);
+  pinMode(MS2_PIN_1, OUTPUT);
+
+  digitalWrite(MS1_PIN, HIGH);
+  digitalWrite(MS1_PIN_1, HIGH);
+
+  digitalWrite(MS2_PIN, LOW);
+  digitalWrite(MS2_PIN_1, LOW);
+
+  digitalWrite(EN_PIN, LOW);  //activate driver
+  digitalWrite(EN_PIN_1, LOW);  //activate driver
+
+  Serial.println(EN_PIN);
+  Serial.println(EN_PIN_1);
+
+
+// 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+// SETUP THE BUZZER + LABRUM CONNECTIONS 
+
+
+  pinMode(LABRUM_CONNECTION, INPUT_PULLUP);
+  pinMode(GH_CONNECTION, INPUT_PULLUP);
+  pinMode(LED_GREEN, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
+
+}
+
+
+// 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+// START OF THE  LOOP + THE CODE FOR THE SCREEN 
+
+#define MINPRESSURE 10
+#define MAXPRESSURE 1000
+
+void loop(void) {
+  digitalWrite(13, HIGH);
+  TSPoint p = ts.getPoint();
+  digitalWrite(13, LOW);
+  pinMode(XM, OUTPUT);
+  pinMode(YP, OUTPUT);
+
+  if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
+    // scale from 0->1023 to tft.width
+    p.x = map(p.x, TS_MINX, TS_MAXX, tft.width(), 0);
+    p.y = (tft.height() - map(p.y, TS_MINY, TS_MAXY, tft.height(), 0));
+  }
+
+  // Loop through two buttons 
+      for (uint8_t b = 0; b < 2; b++) {
+        if (buttons[b].contains(p.x, p.y)) {
+          buttons[b].press(true);  // tell the button it is pressed
+        } else {
+          buttons[b].press(false);  // tell the button it is NOT pressed
+        }
+      }
+
+      // now we can see if the button state (trainer mode has changed)
+    
+      for (uint8_t b = 0; b < 2; b++) {
+        if (buttons[b].justReleased()) {
+          buttons[b].drawButton();  // draw normal
+          for (int i = 0; i < strlen(textfield); i++) {
+            textfield[i] = ' ';
+          }
+        }
+
+        // TRY SEEING IF THIS PART IS NECCESSARY - WE ALREADY LOOP THROUGH THIS SHIT LATER ... IT MIGHT JUST SLOW DOWN PROGRAM ID K
+        // I THINK ALL YOU WOULD HAVE TO DO IS INSTANTIATE MANUAL STATE AS SOMETHING RANDOM THAT WAS THE SAME AS BEFORE, CREATEA A NEW MANUAL STATE IN THE LATER LOOP, AND SET A NEW LASTMANUALSTATE at the end of the loop so its compared at the beggining of the next loop  
+        if (buttons[b].justPressed()) {
+          buttons[b].drawButton(true);  // draw invert!
+          if (b == 1) { //this invokes manual mode 
+            manualState = 1; 
+          }
+          if (b == 0){
+            manualState = 0;
+          }
+          delay(100);  // UI debouncing - mess around with this to see if it makes a difference 
+        }
+      }
+
+
+  if (lastManualState != manualState) {
+    if (manualState == 1) {
+          tft.fillScreen(ILI9341_LIGHTGREY);
+          buttoncolors[2] = ILI9341_BLUE; buttoncolors[4] = ILI9341_BLUE;
+          buttoncolors[3] = ILI9341_RED; buttoncolors[5] = ILI9341_RED;
+          buttons[0].initButton(&tft, 58,
+                            20,  // x, y, w, h, outline, fill, text
+                          BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[0], ILI9341_WHITE,
+                          buttonlabels1[0], BUTTON_TEXTSIZE1);
+          buttons[0].drawButton();
+
+          buttons[1].initButton(&tft, 182,
+                                20,  // x, y, w, h, outline, fill, text
+                                BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[1], ILI9341_WHITE,
+                                buttonlabels1[1], BUTTON_TEXTSIZE1);
+          buttons[1].drawButton();
+
+
+ 
+          // create 'text field'
+          tft.drawRect(TEXT_X, TEXT_Y, TEXT_W, TEXT_H, ILI9341_WHITE);
+          for (uint8_t row = 1; row < 7; row++) {
+            for (uint8_t col = 0; col < 2; col++) {
+              buttons[col + row * 2].initButton(&tft, BUTTON_X1 + col * (BUTTON_W1 + BUTTON_SPACING_X1),
+                                                BUTTON_Y1 + row * (BUTTON_H1 + BUTTON_SPACING_Y1),  // x, y, w, h, outline, fill, text
+                                                BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[col + row * 2], ILI9341_WHITE,
+                                                buttonlabels1[col + row * 2], BUTTON_TEXTSIZE1);
+              buttons[col + row * 2].drawButton();
+            }
+          }
+      
+    } 
+    if(manualState == 0) { //Changed to trainer mode, instantiate buttons and loop through
+
+            tft.fillScreen(ILI9341_DARKGREY);
+            Serial.print("LMS"); Serial.println(lastManualState);
+            Serial.print("MS"); Serial.println(manualState);
+            buttoncolors[2] = ILI9341_NAVY; buttoncolors[4] = ILI9341_NAVY;
+            buttoncolors[3] = ILI9341_MAROON; buttoncolors[5] = ILI9341_MAROON;
+
+          buttons[0].initButton(&tft, 58,
+                                  20,  // x, y, w, h, outline, fill, text
+                                  BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[0], ILI9341_WHITE,
+                                  buttonlabels0[0], BUTTON_TEXTSIZE1);
+          buttons[0].drawButton();
+
+          buttons[1].initButton(&tft, 182,
+                                  20,  // x, y, w, h, outline, fill, text
+                                  BUTTON_W1, BUTTON_H1, ILI9341_WHITE, buttoncolors[1], ILI9341_WHITE,
+                                  buttonlabels0[1], BUTTON_TEXTSIZE1);
+          buttons[1].drawButton();
+ 
+ 
+          for (uint8_t row = 1; row < 3; row++) {
+              for (uint8_t col = 0; col < 2; col++) {
+                  buttons[col + row * 2].initButton(&tft, BUTTON_X0 + col * (BUTTON_W0 + BUTTON_SPACING_X0),
+                                                    BUTTON_Y0 + row * (BUTTON_H0 + BUTTON_SPACING_Y0),  // x, y, w, h, outline, fill, text
+                                                    BUTTON_W0, BUTTON_H0, ILI9341_WHITE, buttoncolors[col + row * 2], ILI9341_WHITE,
+                                                    buttonlabels0[col + row * 2], BUTTON_TEXTSIZE0);
+                  buttons[col + row * 2].drawButton();
+              }
+          }
+
+
+
+          tft.drawRect(TEXT_X, TEXT_Y, TEXT_W, TEXT_H, ILI9341_WHITE);
+                
+      } 
+  } 
+  //Always invoke this - looping through different button configurations based on the button state 
+  if(manualState == 1){  
+      for (uint8_t b = 0; b < 14; b++) {
+        if (buttons[b].contains(p.x, p.y)) {
+          //Serial.print("Pressing: "); Serial.println(b);
+          buttons[b].press(true);  // tell the button it is pressed
+        } else {
+          buttons[b].press(false);  // tell the button it is NOT pressed
+        }
+      }
+      // now we can ask the buttons if their state has changed
+          for (uint8_t b = 0; b < 14; b++) {
+            if (buttons[b].justReleased()) {
+              buttons[b].drawButton();  // draw normal
+              for (int i = 0; i < strlen(textfield); i++) {
+                textfield[i] = ' ';
+              }
+            }
+
+          if (buttons[b].justPressed()) {
+            buttons[b].drawButton(true);  // draw invert!
+
+            // if a numberpad button, append the relevant # to the textfield
+            if (b >= 2) {
+              for (int i = 0; i < strlen(buttonlabels1[b]); i++) {
+                textfield[i] = buttonlabels1[b][i];
+              }
+
+            switch(b){
+              case 2:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_1, HIGH); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1); 
+                }
+              break;
+              case 3:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_1, LOW); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1); 
+                }
+              break;
+              case 4:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_2, HIGH); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1); 
+                }
+              break;
+              case 5:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_2, LOW); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1); 
+                }
+              break;
+              case 6:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_3, HIGH); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1); 
+                }
+              break;
+              case 7:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_3, LOW); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1); 
+                }
+              break;
+              case 8:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_4, HIGH); digitalWrite(STEP_PIN_4, HIGH); delay(1); digitalWrite(STEP_PIN_4, LOW); delay(1); 
+                }
+              break;
+              case 9:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_4, LOW); digitalWrite(STEP_PIN_4, HIGH); delay(1); digitalWrite(STEP_PIN_4, LOW); delay(1); 
+                }
+              break;
+              case 10:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_5, HIGH); digitalWrite(STEP_PIN_5, HIGH); delay(1); digitalWrite(STEP_PIN_5, LOW); delay(1); 
+                }
+              break;
+              case 11:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_5, LOW); digitalWrite(STEP_PIN_5, HIGH); delay(1); digitalWrite(STEP_PIN_5, LOW); delay(1); 
+                }  
+              break;
+              case 12:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_6, HIGH); digitalWrite(STEP_PIN_6, HIGH); delay(1); digitalWrite(STEP_PIN_6, LOW); delay(1); 
+                }  
+              break;    
+              case 13:
+                Serial.print("Invoke button "); Serial.print(b); Serial.print(" of action "); Serial.println(buttonlabels1[b]);
+                for(int i = 0; i < 100; i ++){
+                  digitalWrite(DIR_PIN_6, LOW); digitalWrite(STEP_PIN_6, HIGH); delay(1); digitalWrite(STEP_PIN_6, LOW); delay(1); 
+                }
+              break;                   
+              default:
+                Serial.println("err");
+              break;
+
+            }
+
+
+
+
+
+
+            }
+            /*
+            if (b == 1) { //this invokes manual mode 
+            manualState = 1; 
+            }
+            if (b == 0){
+            manualState = 0;
+            }
+            */
+            // update the current text field
+            //Serial.println(textfield);
+            tft.setCursor(TEXT_X + 10, TEXT_Y + 10);
+            tft.setTextColor(TEXT_TCOLOR, ILI9341_OLIVE);
+            tft.setTextSize(TEXT_TSIZE);
+            tft.print(textfield); 
+            delay(100);  // UI debouncing
+          }
+        }
+      }
+      else{
+        for (uint8_t b = 0; b < 6; b++) {
+          if (buttons[b].contains(p.x, p.y)) {
+            //Serial.print("Pressing: "); Serial.println(b);
+            buttons[b].press(true);  // tell the button it is pressed
+          } else {
+            buttons[b].press(false);  // tell the button it is NOT pressed
+          }
+        }
+      for (uint8_t b = 0; b < 6; b++) {
+        if (buttons[b].justReleased()) {
+          buttons[b].drawButton();  // draw normal
+          for (int i = 0; i < strlen(textfield); i++) {
+            textfield[i] = ' ';
+          }
+        }
+
+        if (buttons[b].justPressed()) {
+          buttons[b].drawButton(true);  // draw invert!
+          // if a numberpad button, append the relevant # to the textfield
+          if (b >= 2) {
+            for (int i = 0; i < strlen(buttonlabels0[b]); i++) {
+              textfield[i] = buttonlabels0[b][i];
+            }
+
+                switch(b){ // prob gonna have to debug with some print statements 
+                    case 2:
+                      if(EDS == 0){
+                          Serial.println("Changing from non-EDS to EDS condition"); // LOOSEN EVERYTHING 
+                          for(int i = 0; i < 100; i ++){
+                            digitalWrite(DIR_PIN_1, LOW); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_2, LOW); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_3, LOW); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                            digitalWrite(DIR_PIN_4, LOW); digitalWrite(STEP_PIN_4, HIGH); delay(1); digitalWrite(STEP_PIN_4, LOW); delay(1);
+                            digitalWrite(DIR_PIN_5, LOW); digitalWrite(STEP_PIN_5, HIGH); delay(1); digitalWrite(STEP_PIN_5, LOW); delay(1);
+                            digitalWrite(DIR_PIN_6, LOW); digitalWrite(STEP_PIN_6, HIGH); delay(1); digitalWrite(STEP_PIN_6, LOW); delay(1);         
+                          }                      
+                      }
+                      if(EDS == 2){
+                          Serial.println("Changing from non-EDS to EDS condition"); // LOOSEN EVERYTHING 
+                          for(int i = 0; i < 1000; i ++){
+                            digitalWrite(DIR_PIN_1, HIGH); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_2, HIGH); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_3, HIGH); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                            digitalWrite(DIR_PIN_4, HIGH); digitalWrite(STEP_PIN_4, HIGH); delay(1); digitalWrite(STEP_PIN_4, LOW); delay(1);
+                            digitalWrite(DIR_PIN_5, HIGH); digitalWrite(STEP_PIN_5, HIGH); delay(1); digitalWrite(STEP_PIN_5, LOW); delay(1);
+                            digitalWrite(DIR_PIN_6, HIGH); digitalWrite(STEP_PIN_6, HIGH); delay(1); digitalWrite(STEP_PIN_6, LOW); delay(1);         
+                          }                     
+                      }
+                      EDS = 1; 
+                    break;
+                    case 3:
+                      if(EDS == 1){
+                          Serial.println("Changing from EDS to non-EDS   condition"); // TIGHTEN EVERYTHING 
+                          for(int i = 0; i < 100; i ++){
+                            digitalWrite(DIR_PIN_1, HIGH); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_2, HIGH); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_3, HIGH); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                            digitalWrite(DIR_PIN_4, HIGH); digitalWrite(STEP_PIN_4, HIGH); delay(1); digitalWrite(STEP_PIN_4, LOW); delay(1);
+                            digitalWrite(DIR_PIN_5, HIGH); digitalWrite(STEP_PIN_5, HIGH); delay(1); digitalWrite(STEP_PIN_5, LOW); delay(1);
+                            digitalWrite(DIR_PIN_6, HIGH); digitalWrite(STEP_PIN_6, HIGH); delay(1); digitalWrite(STEP_PIN_6, LOW); delay(1);
+                          }                      
+                      }
+                      if(EDS == 2){
+                          Serial.println("Changing from non-EDS to EDS condition"); // LOOSEN EVERYTHING 
+                          for(int i = 0; i < 700; i ++){
+                            digitalWrite(DIR_PIN_1, HIGH); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_2, HIGH); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_3, HIGH); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                            digitalWrite(DIR_PIN_4, HIGH); digitalWrite(STEP_PIN_4, HIGH); delay(1); digitalWrite(STEP_PIN_4, LOW); delay(1);
+                            digitalWrite(DIR_PIN_5, HIGH); digitalWrite(STEP_PIN_5, HIGH); delay(1); digitalWrite(STEP_PIN_5, LOW); delay(1);
+                            digitalWrite(DIR_PIN_6, HIGH); digitalWrite(STEP_PIN_6, HIGH); delay(1); digitalWrite(STEP_PIN_6, LOW); delay(1);         
+                          }                     
+                      }
+                      EDS = 0; 
+                    break;
+                    case 4: // SUBLUX - ACTIVATE INTERNAL ROTATOR AND 2 OTHER MECHANISMS
+                          for(int i = 0; i < 1000; i ++){
+                            digitalWrite(DIR_PIN_1, HIGH); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_2, HIGH); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_3, HIGH); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                            digitalWrite(DIR_PIN_4, LOW); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_5, LOW); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_6, LOW); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                          }  
+                    break;
+                    case 5: // OTHER IDEAS -- LOOSEN TENSION IN 3 - CREATE MORE TENSION IN OTHER THREE, OR JUST EXACERBATE TENSION IN ONLY THREE AS WE'RE DOING BELOW
+                          for(int i = 0; i < 1000; i ++){
+                            digitalWrite(DIR_PIN_1, LOW); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_2, LOW); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_3, LOW); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                            digitalWrite(DIR_PIN_4, HIGH); digitalWrite(STEP_PIN_1, HIGH); delay(1); digitalWrite(STEP_PIN_1, LOW); delay(1);
+                            digitalWrite(DIR_PIN_5, HIGH); digitalWrite(STEP_PIN_2, HIGH); delay(1); digitalWrite(STEP_PIN_2, LOW); delay(1);
+                            digitalWrite(DIR_PIN_6, HIGH); digitalWrite(STEP_PIN_3, HIGH); delay(1); digitalWrite(STEP_PIN_3, LOW); delay(1);
+                          }  
+                    break;                  
+                    default:
+                      Serial.println("err");
+                    break;
+                }
+
+
+
+          }
+            /*          
+            if (b == 1) { //this invokes manual mode 
+            manualState = 1; 
+            }
+            if (b == 0){
+              manualState = 0;
+            }
+          */
+
+          tft.setCursor(TEXT_X + 10, TEXT_Y + 10);
+          tft.setTextColor(TEXT_TCOLOR, ILI9341_DARKGREY);
+          tft.setTextSize(TEXT_TSIZE);
+          tft.print(textfield); 
+
+
+
+          delay(100);  // UI debouncing
+        }
+      }
+      }
+      lastManualState = manualState;
+
+
+
+      // 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+      // LABRUM CONNECTION PROCESSING
+
+  byte labrum = digitalRead(LABRUM_CONNECTION);
+  Serial.print("Labrum byte is "); Serial.println(labrum);
+  if(labrum == 0){
+      tone(BUZZER,440, 100);
+      digitalWrite(LED_RED, HIGH);
+  } 
+  else{
+    digitalWrite(LED_RED,LOW);
+  }
+
+  byte GH = digitalRead(GH_CONNECTION);
+  Serial.print("Glenohumeral byte is "); Serial.println(GH);
+  if(GH == 0){
+      digitalWrite(LED_GREEN, HIGH);
+  } 
+  else{
+    digitalWrite(LED_GREEN,LOW);
+  }
+
+    }
+
+
+```
+
+#### Final Production Equivalent
+The final iteration was thereby an accumulation of all of these improvements. Functionally, it was able to walk the user through reducing an anterior shoulder subluxation that closely mimicked both non-EDS and EDS morphology and gave real-time feedback for improvement. 
+
+{{< youtube 96FUYL5U1jE >}}
+{{< vs >}}
+
+When presenting at expo, the final design was topped off with the addition of the external housing unit which appeared as such 
+
+{{< img src="/posts/academic-projects/senior_design/final_box.JPEG" align="center" title="Final Box">}}
+
 
 ## Regulatory Considerations, Hazard and Risk Analysis, Other Insights
 
@@ -263,25 +993,40 @@ Another potent risk are exposed electrical components. Although not accounted fo
 
 The exposed wires that come from the muscle insertions have the potential of getting wrapped up and harming the patient. In our production equivalent prototype, we intend to mitigate this by making the glenohumeral joint encased in a clear housing that would allow visualization of the joint, but not direct interaction.
 
-#### Role as Team Lead 
 
-The most I've learned personally from this experience is in the management of people. There were several issues that originated at the start of the year which were alleviated through better management, and understanding our specific group dynamic, and general group characteristics.
+## Verification and Validation
+A critical component of this project was conducting verification to ensure that the device met the specifications we set, and validation to ensure that it was what the user wanted. 
 
-Among those, these are the most resounding takeaways
-- Look towards yourself first in failure. When a group member failed to produce results that I asked for, I redirected the issue to myself. I realized I wasn't communicating the expectations clearly and since then, those issues have been remediated
-- Understand your group mates' goals from the beginning. We have a wide array of students, with different goals. This caused particular conflict when choosing a project topic. After speaking one-on-one with group members, I realized that most of them were oriented towards performing well in the class, and achieving something that was more technical, and had less likelihood of being implemented in the real world. This would position them better when applying in the engineering industry, versus my goal of medical school where the engineering would be in the backdrop. This was one of the main reasons we changed our project topic
-- Problem identification is too commonly overlooked. In the beginning, we would generalize problems like "PTs don't get experience treating EDS". We wouldn't ask 
-    - "Is the principal issue unawareness/inability to identify EDS, or lack of knowledge on how to treat those patients?"
-    - "Do PTs make an effort to get better at treating EDS? If so, do they have proper equipment?"
-    - "Do PTs have ANY experience reducing a dislocation on a patient before their first experience? If not, why are the outcomes alright with non-EDS patients but hazardous when applied to EDS patients?"
-- Don't be afraid to delegate. Early assignments were dominated by group members who got to work early, and had initiative. This pattern was very unfair. Clearly delegating responsibilities for each week and explicitly asking for a progress report was greatly beneficial
-- Create an agenda/schedule for everything. I was not used to this prior to this semester. However group meetings would frequently devolve into unfocused, although project-oriented, conversations that drained time from important topics. 
-- Emphasize transparency. When delegating, we ran into issues with certain group members not being aware of other's actions. Furthermore, a lack of communication and cross-talk, with respect to code, 3D printer files, manufacturing ideas, was very inconvenient. Still have not come up with a solution. We tried transitioning to text over GroupMe, calling over the phone, and better file sharing to limited benefit. More meetings that are technically oriented is likely the solution
+#### Verification 
+Verification was split 5 ways among my group members because of the amount of verification we had to perform. Generally, as the amount of features in a device increases, so does the amount of verification tests. I conducted three on my own. 
 
+The first was to ensure that the muscle fibers would not break over time. The second was to ensure that the device could stably produce a subluxation that was analagous to a clinical correlate and thereby >= 1cm in translation within the GH joint. The final verification test was to ensure that the shoulder essentially "felt" like a normal human shoulder. We used a model developed by our mentor, Dr.Debski, to identify whether our device was performly adequately. Essentially, for a normal shoulder we wanted to mimic the following sigmoidal curve:
 
+{{< img src="/posts/academic-projects/senior_design/debski.png" align="center" title="Normal Shoulder Physiology">}}
 
-#### Design Expo
-We placed 2nd in a design expo fo the Swanson School of Engineering, Bioengineering Divison. We intend to place first next time, and have decided the below improvements, among other, would greatly improve our proejct and propel us to win. 
+Furthermore, to approximate the EDS condition we accentuated the slopes of the curve and increased the extremes that the displacement vaues plateued at. Hypermobile joints displace translationally will less load application, and we made the following adjustment according to expert guidance as such. 
+{{< img src="/posts/academic-projects/senior_design/EDScurve.png" align="center" title="EDS Shoulder Physiology">}}
+
+The following methodology was undertaken to evaluate our device: 
+{{< img src="/posts/academic-projects/senior_design/testprotocol.png" align="center" title="VE Test Protocol">}}
+
+Here were the non-EDS and the EDS results. The green shows the admissable error range (within 20% in either direction). The black bars are confidence bands determined from the three trials of each that were performed.
+
+{{< img src="/posts/academic-projects/senior_design/nonEDSresult.png" align="center" title="non-EDS Shoulder Results">}}
+
+{{< img src="/posts/academic-projects/senior_design/edsresult.png" align="center" title="EDS Shoulder Results">}}
+
+As such, the design failed as it did not meet the acceptance criteria. It did, however, perform qualitively well and would require further iterations to ensure that the current specifications are set for each muscle fiber. 
+
+#### Validation
+Validation was performed with practicing physical therapists at the Jewish Community Center and with physical therapists students. We evaluated which interventions they would perform, and if this device was a satisfactory teaching implement. Although I attended nearly all of the validation sessions, I did not develop the protocol, nor record the results and as such this will be excluded.
+
+Other experiments were done for the course - including FEA analysis, the establishment of a QMS system via greenlight guru, SOPs, and several financial analysis. However, for the purpose of this project, and my contributions, they came through verification and device development mainly. 
+
+## Design Expo Results
+
+#### Design Expo First Semester
+We placed 2nd in a design expo fo the Swanson School of Engineering, Bioengineering Divison. We intend to place first next time, and have decided the below improvements, among other, would greatly improve our project and propel us to win. 
 
 
 * Collecting gyroscopic and position-based data from experts in reducing shoulder subluxations. Then, performing a real-time statistical test to detect whether the user is performing a movement similar to the expert
@@ -294,3 +1039,14 @@ We placed 2nd in a design expo fo the Swanson School of Engineering, Bioengineer
 Regardless, we're still proud of our work. 
 
 {{< img src="/posts/academic-projects/senior_design/team_pico.jpg" align="center" title="Team Picture during Expo Award">}}
+
+
+
+#### Design Expo Second Semester
+
+The previous excerpt has been kept as it was at the time of writing (last semester). This it to show that we had full intention of improving and winning upon the final semester. Thankfully, we were able to place as best project in the bioengineering category 
+{{< img src="/posts/academic-projects/senior_design/bestbioe.jpg" align="center" title="Best Bioegineering Project">}}
+
+and best overall project as well. We were more rehearsed in our delivery and our product was not only functional, but appealing and impressive as well. I'm incredibly proud of our achievement. It took a monumental amount of effort, and I'm humbled by the fact that the judges liked us amidst so many incredible, incredible design projects and teams. Thank you 
+
+{{< img src="/posts/academic-projects/senior_design/bestoverall.jpg" align="center" title="Best OVerall Proejct">}}
